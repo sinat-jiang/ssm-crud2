@@ -244,11 +244,33 @@
 			navEle.appendTo("#page_nav_area");
 		}
 		
+		//点击新增按钮，弹出模态框
 		$("#AddEmp").click(function(){
+			//发送ajax请求，查出部门信息，显示在下拉列表中
+			getDepts();
+			
+			//弹出模态框
 			$("#myModalAddEmp").modal({
 				backdrop:"static"
 			});
 		});
+		
+		//查出所有的部门信息
+		function getDepts(){
+			$.ajax({
+				url:"${APP_PATH}/depts",
+				type:"GET",
+				success:function(result){
+					/* extend
+					{depts: [{deptId: 1, deptName: "开发部"}, {deptId: 2, deptName: "测试部"}]} */
+					//console.log(result);
+					$.each(result.extend.depts, function(){
+						var optionEle = $("<option></option>").append(this.deptName).append("value", this.deptId);
+						optionEle.appendTo("#myModalAddEmp select");
+					});
+				}
+			});
+		} 
 	</script>
 	
 </body>
