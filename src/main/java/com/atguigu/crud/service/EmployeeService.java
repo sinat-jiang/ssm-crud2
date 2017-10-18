@@ -23,4 +23,13 @@ public class EmployeeService {
 		return emps;
 	}
 
+	/**
+	 * 员工保存方法
+	 * @param employee
+	 */
+	public void saveEmp(Employee employee) {
+		// TODO Auto-generated method stub
+		employeeMapper.insertSelective(employee);
+	}
+
 }

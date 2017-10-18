@@ -71,7 +71,7 @@
 	      </div>
 	      <div class="modal-footer">
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	        <button type="button" class="btn btn-primary">Save changes</button>
+	        <button type="button" class="btn btn-primary" id="emp_save_btn">Save changes</button>
 	      </div>
 	    </div>
 	  </div>
@@ -128,6 +128,7 @@
 	</div>
 	
 	<script type="text/javascript">
+		var totalRecord;
 		//1.页面加载完成以后，直接去发送ajax请求，要到分页数据
 		$(function() {
 			//去首页
@@ -189,6 +190,8 @@
 			$("#page_info_area").empty();
 			$("#page_info_area").append("当前" + result.extend.pageInfo.pageNum + "页，总" + 
 					result.extend.pageInfo.pages +"页, 共" + result.extend.pageInfo.total + "条记录");
+			//全局变量，保存总记录数(肯定比总页数大)
+			totalRecord = result.extend.pageInfo.total;
 		}
 		
 		//解析显示分页条
@@ -265,12 +268,56 @@
 					{depts: [{deptId: 1, deptName: "开发部"}, {deptId: 2, deptName: "测试部"}]} */
 					//console.log(result);
 					$.each(result.extend.depts, function(){
-						var optionEle = $("<option></option>").append(this.deptName).append("value", this.deptId);
+						var optionEle = $("<option></option>").append(this.deptName).attr("value", this.deptId);
 						optionEle.appendTo("#myModalAddEmp select");
 					});
 				}
 			});
 		} 
+		
+		
+		//校验表单数据
+		function validate_add_form(){
+			//1.拿到要校验的数据，使用正则表达式
+			var empName = $("#empName_add_input").val();
+			var regName = /(^[a-zA-Z0-9_-]{6,16}$)|(^[\u2E80-\u9FFF]{2,5})/;
+			if(!regName.test(empName)){
+				alert("用户名可以是2-5位中文或者6-16位英文和数字的组合");
+				return false;
+			}
+			
+			//2.校验邮箱信息
+			var email = $("#email_add_input").val();
+			var regEmail = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+			if(!regEmail.test(email)){
+				alert("邮箱格式不正确");
+				return false;
+			}
+			return true;
+		}
+		
+		$("#emp_save_btn").click(function(){
+			//1.模态框种填写的表单数据提交给服务器进行保存
+			//1.先要对提交给服务器的数据进行校验
+			if(!validate_add_form()){
+				return false;
+			}
+			
+			//2.发送ajax请求保存员工
+			$.ajax({
+				url:"${APP_PATH}/emp",
+				type:"POST",
+				data:$("#myModalAddEmp form").serialize(),
+				success:function(result){
+					alert(result.msg);
+					//员工保存成功
+					//1.关闭模态框
+					$("#myModalAddEmp").modal('hide');
+					//2.来到最后一页，显示刚才保存的数据
+					to_page(totalRecord);
+				}
+			})
+		});
 	</script>
 	
 </body>

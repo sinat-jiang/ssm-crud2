@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -20,6 +21,19 @@ public class EmployeeController {
 
 	@Autowired
 	EmployeeService employeeService;
+	
+	/**
+	 * springmvc框架自动将参数与表单的各个属性一一对应，
+	 * 其中只要表单中的value与对象类的属性名称一致即可
+	 * @param employee
+	 * @return
+	 */
+	@RequestMapping(value="/emp", method=RequestMethod.POST)
+	@ResponseBody
+	public Msg saveEmp(Employee employee){
+		employeeService.saveEmp(employee);
+		return Msg.success();
+	}
 	
 	/**
 	 * @ResponseBody：用来返回json字符串时使用
