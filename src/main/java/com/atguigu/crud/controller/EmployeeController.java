@@ -1,5 +1,6 @@
 package com.atguigu.crud.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,6 +29,52 @@ public class EmployeeController {
 
 	@Autowired
 	EmployeeService employeeService;
+	
+	/**
+	 * 删除
+	 * 单个员工、多个员工  合一
+	 */
+	@RequestMapping(value="/emp/{ids}", method=RequestMethod.DELETE)
+	@ResponseBody
+	public Msg deleteEmpById(@PathVariable("ids")String ids){
+		//批量删除
+		if(ids.contains("-")){
+			List<Integer> del_ids = new ArrayList<Integer>();
+			String[] str_ids = ids.split("-");
+			//组装id的集合
+			for(String string : str_ids){
+				del_ids.add(Integer.parseInt(string));
+			}
+			employeeService.deleteBatch(del_ids);
+		}else { //单个删除
+			employeeService.deleteEmp(Integer.parseInt(ids));
+		}
+		return Msg.success();
+	}
+	
+	/**
+	 * 员工更新方法
+	 * 这里要注意的是：传递过来的id要和employee对象的属性名称保持一致：{empId}
+	 * 否则无法自动识别
+	 */
+	@ResponseBody
+	@RequestMapping(value="/emp/{empId}", method=RequestMethod.PUT)
+	public Msg saveEmp(Employee employee){
+		employeeService.updateEmp(employee);
+		return Msg.success();
+	}
+	
+	/**
+	 * 根据id查询员工
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value="/emp/{id}", method=RequestMethod.GET)
+	@ResponseBody
+	public Msg getEmp(@PathVariable("id")Integer id){
+		Employee employee = employeeService.getEmp(id);
+		return Msg.success().add("emp", employee);
+	}
 	
 	@RequestMapping("/checkuser")
 	@ResponseBody //返回json数据
